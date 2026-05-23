@@ -2,6 +2,7 @@ package com.EcommerceShop.Shop.entity;
 
 import com.EcommerceShop.Shop.enums.OrderItemStatus;
 import com.EcommerceShop.Shop.enums.OrderStatus;
+import com.EcommerceShop.Shop.enums.PaymentMethod;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -35,6 +36,13 @@ public class Orders  implements Serializable {
     Date createdAt ;
 
     Double total ;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_method")
+    PaymentMethod paymentMethod ;
+
+    @Column(name = "vnp_txn_ref")
+    String vnpTxnRef ;
 
     @OneToMany(mappedBy = "orders",cascade = CascadeType.ALL,orphanRemoval = true)
     List<OrderItem> orderItems;

@@ -30,7 +30,8 @@ public class SecurityConfig {
             "/product/**",
             "/category/all",
             "/brand/all",
-            "/address"
+            "/address",
+            "/payment/vnpay/return"
     };
     CustomJwtDecoder customJwtDecoder;
 

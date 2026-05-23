@@ -8,6 +8,10 @@ const orderApi = {
   getStatusList: () => axiosClient.get('/order/status'),
   updateStatus: (orderId, data) => axiosClient.patch(`/order/${orderId}/update-status`, data),
   delete: (orderId) => axiosClient.delete(`/order/${orderId}`),
+
+  // VNPay Payment
+  createVNPayUrl: (orderId) => axiosClient.post(`/payment/vnpay/create-url?orderId=${orderId}`),
+  getVNPayReturn: (queryString) => axiosClient.get(`/payment/vnpay/return?${queryString}`),
 };
 
 export default orderApi;

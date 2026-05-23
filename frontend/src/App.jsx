@@ -19,6 +19,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import Profile from './pages/Profile';
 import OrderHistory from './pages/OrderHistory';
 import OrderDetail from './pages/OrderDetail';
+import VNPayReturn from './pages/VNPayReturn';
 
 import Dashboard from './pages/admin/Dashboard';
 import ProductManager from './pages/admin/ProductManager';
@@ -57,6 +58,7 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/payment/vnpay-return" element={<VNPayReturn />} />
 
           {/* Protected Customer Routes */}
           <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />

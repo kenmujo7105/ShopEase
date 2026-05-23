@@ -2,6 +2,7 @@ package com.EcommerceShop.Shop.dto.response;
 
 
 import com.EcommerceShop.Shop.enums.OrderStatus;
+import com.EcommerceShop.Shop.enums.PaymentMethod;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,5 +26,7 @@ public class OrderResponse {
     private List<OrderItemResponse> orderItems;
 
     private Double total ;
+
+    private PaymentMethod paymentMethod ;
 
 }

@@ -21,6 +21,7 @@ public abstract class OrderMapper {
                 .id(orders.getId())
                 .userId(orders.getUser().getId())
                 .status(orders.getStatus())
+                .paymentMethod(orders.getPaymentMethod())
                 .orderItems(orders.getItemByStatus(status != null ? status : OrderItemStatus.ACTIVE).stream().map(
                         this::toOrderItemResponse
                 ).toList()).build() ;

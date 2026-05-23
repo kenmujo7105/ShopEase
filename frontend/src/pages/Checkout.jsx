@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, CreditCard, Banknote } from 'lucide-react';
+import { MapPin, CreditCard, Banknote, Wallet } from 'lucide-react';
 import toast from 'react-hot-toast';
 import useCartStore from '../store/useCartStore';
 import useAuthStore from '../store/useAuthStore';
@@ -79,7 +79,30 @@ export default function Checkout() {
         phone: selectedAddress.phone,
         receiverName: selectedAddress.receiverName,
       };
-      await orderApi.create({ items: orderItems, shippingAddress, paymentMethod, note });
+      const res = await orderApi.create({ items: orderItems, shippingAddress, paymentMethod, note });
+      const order = res.data;
+
+      // Nếu VNPay → tạo payment URL và redirect
+      if (paymentMethod === 'VNPAY' && order?.id) {
+        toast.loading('Đang chuyển đến cổng thanh toán VNPay...', { duration: 3000 });
+        try {
+          const vnpayRes = await orderApi.createVNPayUrl(order.id);
+          const paymentUrl = vnpayRes.data?.paymentUrl;
+          if (paymentUrl) {
+            await fetchCart();
+            window.location.href = paymentUrl;
+            return;
+          } else {
+            toast.error('Không thể tạo link thanh toán VNPay');
+          }
+        } catch {
+          toast.error('Lỗi kết nối VNPay. Đơn hàng đã tạo, bạn có thể thanh toán lại sau.');
+          navigate('/orders');
+          return;
+        }
+      }
+
+      // Flow thường (CASH, BANK)
       toast.success('Đặt hàng thành công!');
       await fetchCart();
       navigate('/orders');
@@ -143,16 +166,29 @@ export default function Checkout() {
               {[
                 { value: 'CASH', label: 'Tiền mặt', icon: Banknote, desc: 'Thanh toán khi nhận hàng' },
                 { value: 'BANK', label: 'Chuyển khoản', icon: CreditCard, desc: 'Chuyển khoản ngân hàng' },
-                { value: 'VNPAY', label: 'VNPay', icon: CreditCard, desc: 'Ví điện tử VNPay' },
+                { value: 'VNPAY', label: 'VNPay', icon: Wallet, desc: 'Thanh toán qua VNPay', highlight: true },
               ].map(pm => (
                 <button
                   key={pm.value}
                   onClick={() => setPaymentMethod(pm.value)}
-                  className={`flex items-center gap-3 p-4 rounded-lg border-2 text-left transition-colors ${
-                    paymentMethod === pm.value ? 'border-primary-500 bg-primary-50' : 'border-gray-100 hover:border-gray-200'
+                  className={`relative flex items-center gap-3 p-4 rounded-lg border-2 text-left transition-all ${
+                    paymentMethod === pm.value
+                      ? pm.value === 'VNPAY'
+                        ? 'border-blue-500 bg-blue-50 shadow-md shadow-blue-100'
+                        : 'border-primary-500 bg-primary-50'
+                      : 'border-gray-100 hover:border-gray-200'
                   }`}
                 >
-                  <pm.icon className={`w-5 h-5 ${paymentMethod === pm.value ? 'text-primary-500' : 'text-gray-400'}`} />
+                  {pm.highlight && (
+                    <span className="absolute -top-2 -right-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow">
+                      Online
+                    </span>
+                  )}
+                  <pm.icon className={`w-5 h-5 ${
+                    paymentMethod === pm.value
+                      ? pm.value === 'VNPAY' ? 'text-blue-500' : 'text-primary-500'
+                      : 'text-gray-400'
+                  }`} />
                   <div>
                     <p className="text-sm font-medium text-gray-800">{pm.label}</p>
                     <p className="text-xs text-gray-400">{pm.desc}</p>
@@ -160,6 +196,15 @@ export default function Checkout() {
                 </button>
               ))}
             </div>
+
+            {/* VNPay Info Banner */}
+            {paymentMethod === 'VNPAY' && (
+              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-xs text-blue-700">
+                  💳 Bạn sẽ được chuyển đến cổng thanh toán VNPay để hoàn tất. Hỗ trợ thẻ ATM/Internet Banking, Visa/Mastercard, QR Code.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Note */}
@@ -208,9 +253,17 @@ export default function Checkout() {
           <button
             onClick={handlePlaceOrder}
             disabled={isSubmitting || !selectedAddress}
-            className="btn-primary w-full mt-6 disabled:opacity-50"
+            className={`w-full mt-6 font-semibold py-3 rounded-xl transition-all disabled:opacity-50 ${
+              paymentMethod === 'VNPAY'
+                ? 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-lg shadow-blue-200'
+                : 'btn-primary'
+            }`}
           >
-            {isSubmitting ? 'Đang xử lý...' : 'Đặt hàng'}
+            {isSubmitting
+              ? 'Đang xử lý...'
+              : paymentMethod === 'VNPAY'
+                ? '💳 Thanh toán qua VNPay'
+                : 'Đặt hàng'}
           </button>
         </div>
       </div>

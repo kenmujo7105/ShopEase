@@ -13,6 +13,7 @@ export function formatDate(date) {
 
 export function getStatusBadgeClass(status) {
   const map = {
+    PENDING_PAYMENT: 'bg-amber-100 text-amber-700',
     PENDING: 'badge-pending',
     CONFIRMED: 'badge-confirmed',
     SHIPPED: 'badge-shipped',
@@ -24,6 +25,7 @@ export function getStatusBadgeClass(status) {
 
 export function getStatusLabel(status) {
   const map = {
+    PENDING_PAYMENT: '⏳ Chờ thanh toán',
     PENDING: 'Chờ xác nhận',
     CONFIRMED: 'Đã xác nhận',
     SHIPPED: 'Đang giao',

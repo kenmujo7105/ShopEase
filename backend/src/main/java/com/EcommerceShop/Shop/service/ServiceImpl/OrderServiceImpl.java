@@ -6,6 +6,7 @@ import com.EcommerceShop.Shop.enums.ErrorCode;
 import com.EcommerceShop.Shop.entity.OrderItem;
 import com.EcommerceShop.Shop.enums.OrderItemStatus;
 import com.EcommerceShop.Shop.enums.OrderStatus;
+import com.EcommerceShop.Shop.enums.PaymentMethod;
 import com.EcommerceShop.Shop.entity.Orders;
 import com.EcommerceShop.Shop.dto.request.OrderItemRequest;
 import com.EcommerceShop.Shop.dto.request.OrderRequest;
@@ -55,10 +56,18 @@ public class OrderServiceImpl implements OrderService {
         User user = userRepository.findByEmail(username).orElseThrow(() -> new AppException( ErrorCode.BAD_REQUEST)) ;
         PreviewOrderResponse response = preview(request);
         Double total = response.getTotal() ;
+
+        // Xác định status dựa trên phương thức thanh toán
+        OrderStatus initialStatus = (request.getPaymentMethod() == PaymentMethod.VNPAY)
+                ? OrderStatus.PENDING_PAYMENT
+                : OrderStatus.PENDING;
+
         Orders orders = Orders.builder()
                 .createdAt(new Date())
-                .status(OrderStatus.PENDING)
-                .total(total).build();
+                .status(initialStatus)
+                .total(total)
+                .paymentMethod(request.getPaymentMethod())
+                .build();
         List<OrderItem> orderItems = request.getItems().stream().map(orderItemRequest ->
                 OrderItem.builder()
                         .num(orderItemRequest.getNum())

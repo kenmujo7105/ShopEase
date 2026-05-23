@@ -1,6 +1,7 @@
 package com.EcommerceShop.Shop.enums;
 
 public enum OrderStatus {
+    PENDING_PAYMENT, // Đơn hàng chờ thanh toán online (VNPay)
     PENDING,          // Đơn hàng vừa được tạo, đang chờ xác nhận
     CONFIRMED,       // Đơn hàng đã được xác nhận (bởi hệ thống hoặc admin)
     SHIPPED,         // Đã giao cho đơn vị vận chuyển
